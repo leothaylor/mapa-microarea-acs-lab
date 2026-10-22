@@ -12,8 +12,8 @@ Experimento totalmente **fictício**, repositório e GitHub Pages públicos. Os 
 
 - Site estático: index.html (CSS/UI), app.js (estado e Leaflet), sw.js, manifest.webmanifest, icon.svg e README.md.
 - Leaflet 1.9.4, base de ruas OpenStreetMap; 18 pontos artificiais em 3 polígonos A/B/C, categorias HAS/Diabetes/Gestante/Criança; filtros, modos Rotina/Ação, conclusão por mês, contagens, adição de ponto fictício dentro do setor e seleção do roteiro.
-- Persistência localStorage em chave \`rotina-acs-lab-map-v01\`; \`state.points\`, \`state.visits\` por AAAA-MM e \`state.route\`.
-- **Bugs/limites**: sidebar longa oculta roteiro/inclusão; seleção do roteiro não desenha linhas; não há reordenação nem trajetos por vias; ponto não tem CRUD real; adicionar exige setor rígido e se usa categoria ativa/default; hardcodes de coordenadas e grupos; grupos simples, um por ponto; setores não editáveis; sem GPS; não há agrupamento de marcadores, backup ou testes. \`month\` não é salvo; \`reset\` deve permanecer seguro.
+- Persistência localStorage em chave `rotina-acs-lab-map-v01`; `state.points`, `state.visits` por AAAA-MM e `state.route`.
+- **Bugs/limites**: sidebar longa oculta roteiro/inclusão; seleção do roteiro não desenha linhas; não há reordenação nem trajetos por vias; ponto não tem CRUD real; adicionar exige setor rígido e se usa categoria ativa/default; hardcodes de coordenadas e grupos; grupos simples, um por ponto; setores não editáveis; sem GPS; não há agrupamento de marcadores, backup ou testes. `month` não é salvo; `reset` deve permanecer seguro.
 - Página hospedada em GitHub Pages a partir da branch main/root. Preservar funcionamento com caminhos relativos e deploy estático, sem exigir serviço pago.
 
 ## Estratégia de engenharia: custo e qualidade
@@ -22,11 +22,11 @@ Créditos de Codex/Astra restritos (~40% no início). Trabalhar concentrado. Nã
 
 ### Dados e conceitos invariantes
 
-1. \`Ponto operacional fictício\` com ID local estável, coordenadas, setor derivado espacialmente (quando possível) e **múltiplas categorias opcionais** (ex.: HAS + Diabetes, evitando dupla contagem de ponto); identificador genérico gerado automaticamente. Não exigir CPF, nome, telefone, endereço ou campos livres identificáveis.
-2. \`Registro de execução\` com ID de ponto, competência AAAA-MM, data local da conclusão e tipo operacional (rotina/ação, quando escolhido); permitir desfazer. Não confundir visita planejada com concluída.
-3. \`Roteiro\` é uma lista **ordenada** de IDs de pontos, removível/reordenável; visualização de sequência por segmentos retos; **não rotular como rota por ruas, tempo de deslocamento ou otimização automática real**.
-4. \`Setor\` é polígono geográfico editável + rótulo genérico. Indicador setor = pontos distintos concluídos na competência / total de pontos distintos elegíveis ao filtro no setor. Não extrapolar para cobertura oficial, qualidade do cuidado ou avaliação clínica. Setor vazio = SEM DADOS (não 0% vermelho).
-5. \`Concentração\` e \`execução\` são camadas distintas: distribuição de pontos não equivale a cobertura de atividades. Para concentração, começar com número de pontos por setor, sem inferência epidemiológica. Qualquer heatmap posterior deve ser rotulado como densidade dos pontos sintéticos, não incidência clínica.
+1. `Ponto operacional fictício` com ID local estável, coordenadas, setor derivado espacialmente (quando possível) e **múltiplas categorias opcionais** (ex.: HAS + Diabetes, evitando dupla contagem de ponto); identificador genérico gerado automaticamente. Não exigir CPF, nome, telefone, endereço ou campos livres identificáveis.
+2. `Registro de execução` com ID de ponto, competência AAAA-MM, data local da conclusão e tipo operacional (rotina/ação, quando escolhido); permitir desfazer. Não confundir visita planejada com concluída.
+3. `Roteiro` é uma lista **ordenada** de IDs de pontos, removível/reordenável; visualização de sequência por segmentos retos; **não rotular como rota por ruas, tempo de deslocamento ou otimização automática real**.
+4. `Setor` é polígono geográfico editável + rótulo genérico. Indicador setor = pontos distintos concluídos na competência / total de pontos distintos elegíveis ao filtro no setor. Não extrapolar para cobertura oficial, qualidade do cuidado ou avaliação clínica. Setor vazio = SEM DADOS (não 0% vermelho).
+5. `Concentração` e `execução` são camadas distintas: distribuição de pontos não equivale a cobertura de atividades. Para concentração, começar com número de pontos por setor, sem inferência epidemiológica. Qualquer heatmap posterior deve ser rotulado como densidade dos pontos sintéticos, não incidência clínica.
 6. Dados sintéticos da V0.1 devem continuar disponíveis, sem perder alterações de teste locais. Validar inputs e importar backup de modo seguro. Se mudar schema, incluir migração de v01 ou fallback conservador.
 7. Sem compartilhamento, sincronização remota ou upload dos dados. Geolocalização exige clique e consentimento, deve exibir precisão/erro, permitir ajuste manual e não salvar coordenadas reais automaticamente no demo; nunca coletar em background.
 
@@ -44,7 +44,7 @@ Créditos de Codex/Astra restritos (~40% no início). Trabalhar concentrado. Nã
 - Dar feedback útil de estado vazio/erro, sem alert() para fluxo comum.
 
 **Persistência e estabilidade**
-- Proteger estado, usar IDs estáveis, manter compatibilidade com \`rotina-acs-lab-map-v01\`, validar estado importado; não perder dados ao atualizar. Salvar/restaurar competência e modo se vantajoso.
+- Proteger estado, usar IDs estáveis, manter compatibilidade com `rotina-acs-lab-map-v01`, validar estado importado; não perder dados ao atualizar. Salvar/restaurar competência e modo se vantajoso.
 - Revisar assinaturas/eventos para evitar double click, duplicação de rota, erros com estado de visitas e reset; confirmação só para exclusões destrutivas.
 
 ### P1 — Edição real do laboratório (EXECUTAR APÓS P0, SE O ORÇAMENTO PERMITIR)
@@ -80,7 +80,7 @@ Créditos de Codex/Astra restritos (~40% no início). Trabalhar concentrado. Nã
 - Manter informação explícita: "LAB — somente simulação com dados fictícios; não inserir dados reais".
 - Não substituir ou vincular funcionalidades comerciais do SuperKit por material grátis. Este app é camada geográfica e operacional; não reproduzir fichas ou checklists do SuperKit.
 - Sem analytics coletando dados geográficos; não inserir tokens/secrets no frontend nem no repositório.
-- OSM: https://operations.osmfoundation.org/policies/tiles/ — atribuição sempre visível, somente requisições de tiles para viewport de uso normal, nada de prefetch/download/offline de mosaicos; usar URL correta \`https://tile.openstreetmap.org/{z}/{x}/{y}.png\` e não forçar bypass de cache. Service worker não deve interceptar ou baixar tiles de outro domínio.
+- OSM: https://operations.osmfoundation.org/policies/tiles/ — atribuição sempre visível, somente requisições de tiles para viewport de uso normal, nada de prefetch/download/offline de mosaicos; usar URL correta `https://tile.openstreetmap.org/{z}/{x}/{y}.png` e não forçar bypass de cache. Service worker não deve interceptar ou baixar tiles de outro domínio.
 
 ## Critérios de aceite verificáveis
 
@@ -94,13 +94,13 @@ Créditos de Codex/Astra restritos (~40% no início). Trabalhar concentrado. Nã
 8. Setor sem pontos aparece como "sem dados"/neutro; não como 0% ou baixa cobertura.
 9. Dados V0.1 continuam acessíveis após migração; reset voluntário restaura demo; se backup incluído, roundtrip export/import testado.
 10. Testes em viewport mobile e desktop; controles não escondem atribuição nem botões essenciais.
-11. Verificar \`node --check\` em cada JS, adicionar testes leves do domínio quando viável, executar smoke test browser se disponível; relatar quais foram executados e o que depende de teste manual.
+11. Verificar `node --check` em cada JS, adicionar testes leves do domínio quando viável, executar smoke test browser se disponível; relatar quais foram executados e o que depende de teste manual.
 12. Nenhum arquivo/commit nos outros repositórios do proprietário.
 
 ## Fluxo recomendado ao Codex/Astra
 
-1. Leia \`AGENTS.md\`, este arquivo, \`index.html\`, \`app.js\`, \`sw.js\`, \`README.md\`. Faça inventário **curto**.
+1. Leia `AGENTS.md`, este arquivo, `index.html`, `app.js`, `sw.js`, `README.md`. Faça inventário **curto**.
 2. Implemente P0 de ponta a ponta, teste, faça commit. Se houver orçamento disponível, P1; P2 apenas se não comprometer acabamento de P0/P1. Não execute P3.
 3. Prefira código verificável e decisões conservadoras a promessas de funcionalidade. Se um item não couber, marque no README como pendente em vez de exibir controle quebrado.
-4. Faça commit(s) no repositório designado e push para \`main\` **quando autorizado/disponível**, para permitir teste imediato no Pages. Não reescreva histórico nem use \`--force\`. Se push não estiver disponível, deixe a branch/PR e instruções precisas.
+4. Faça commit(s) no repositório designado e push para `main` **quando autorizado/disponível**, para permitir teste imediato no Pages. Não reescreva histórico nem use `--force`. Se push não estiver disponível, deixe a branch/PR e instruções precisas.
 5. Entregue resposta final curta: URL da prévia, commits, P0/P1/P2 concluídos e pendentes, comandos de teste + limitações reais. Não gastar tokens com relatórios longos nem perguntas de confirmação para detalhes já definidos.
