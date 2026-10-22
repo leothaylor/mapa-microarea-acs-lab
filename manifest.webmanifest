@@ -1,0 +1,18 @@
+{
+  "name": "Mapa da Microárea — Rotina ACS LAB",
+  "short_name": "Mapa ACS LAB",
+  "description": "Protótipo fictício de inteligência territorial para ACS",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fcfdfa",
+  "theme_color": "#123934",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
