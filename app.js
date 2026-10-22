@@ -18,9 +18,9 @@ const visited=p=>D.visited(state,p.id);
 const percent=(n,d)=>d?Math.round(100*n/d):0;
 const tone=(n,total)=>!total?'#82958e':n>=75?'#50b487':n>=45?'#edbd69':'#d97772';
 function el(tag,className,text){const node=document.createElement(tag);if(className)node.className=className;if(text!==undefined)node.textContent=text;return node;}
-function button(text,action,className='btn secondary',aria){const b=el('button',className,text);b.type='button';if(aria)b.setAttribute('aria-label',aria);b.onclick=action;return b;}
+function button(text,action,className='btn secondary',aria){const b=el('button',className,text);b.type='button';if(aria)b.setAttribute('aria-label',aria);b.onclick=event=>{event.stopPropagation();action(event);};return b;}
 if(!window.L){$('loadfail').classList.add('visible');return;}
-const map=L.map('map',{zoomControl:false,preferCanvas:true}).setView([-22.8696,-43.3415],16);
+const map=L.map('map',{zoomControl:false,preferCanvas:true,fadeAnimation:false,zoomAnimation:!matchMedia('(prefers-reduced-motion: reduce)').matches}).setView([-22.8696,-43.3415],16);
 const tiles=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(map);
 tiles.on('tileerror',()=>notify('Algumas ruas não carregaram. Verifique a conexão; os pontos continuam disponíveis.'));
 L.control.zoom({position:'bottomright'}).addTo(map);
