@@ -1,6 +1,6 @@
 /* Atualização network-first para que modificações no GitHub Pages apareçam. */
-const CACHE='rotina-acs-lab-v2';
-const LOCAL=['./','./index.html','./app.js','./manifest.webmanifest','./icon.svg'];
+const CACHE='rotina-acs-lab-v3';
+const LOCAL=['./','./index.html','./app.js','./domain.js','./styles.css','./manifest.webmanifest','./icon.svg'];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(c=>c.addAll(LOCAL)).then(()=>self.skipWaiting()));
 });

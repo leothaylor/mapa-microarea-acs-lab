@@ -34,3 +34,14 @@ Arquivo principal: index.html; lógica: app.js; serviço de cache: sw.js.
 - Desenho de setor e relatórios agregados, sempre usando dados fictícios.
 - Investigar separação entre visitas de rotina e ações dirigidas sem duplicação de registro.
 - Validar interface em celular real.
+
+## Checkpoint P0 — 22/10/2026
+- Painel recolhível no desktop e painel inferior no celular; roteiro e inclusão acessíveis na barra do mapa.
+- Roteiro ordenável, remoção, confirmação para limpar e linha reta (não segue vias públicas).
+- Marcadores com número, seleção e conclusão distinguíveis; conclusão/desfazer atualizam o mês e os setores.
+- Mesma chave `rotina-acs-lab-map-v01`; migração valida referências, preserva competência, modo e dados de teste. Estado ilegível não é sobrescrito automaticamente.
+- `domain.js` concentra operações testáveis; `styles.css` preserva a identidade verde. Nenhum pacote instalado.
+- TESTADO: Node v22.19.0, `node --check app.js`, `node --check domain.js`, `node --check sw.js`; `node --test tests/domain.test.js` (6/6).
+- TESTADO via Playwright: desktop 1366×900 e mobile 390×844, seleção de 3 pontos, ordem [1,4,2], conclusão 8→9, recarga preserva 9, desfazer, remoção, painel e atribuição OSM visível; sem erro JavaScript ou overflow horizontal.
+- Git 2.54.0.windows.1 e GitHub CLI autenticado: TESTADOS. Servidor estático Python e navegador Playwright: OPERACIONAIS nesta sessão. Presença de outras ferramentas não foi tomada como prova de funcionamento.
+- P1/P2 seguem o plano em `docs/PLANO_IMPLEMENTACAO_ASTRA.md`; funcionalidades ainda não implementadas não são expostas na interface.

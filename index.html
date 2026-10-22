@@ -4,60 +4,39 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#123934">
-<meta name="description" content="Laboratório experimental de mapeamento territorial Rotina ACS. Todos os pontos são fictícios.">
+<meta name="description" content="Laboratório de mapeamento territorial. Somente dados fictícios.">
 <title>Mapa da Microárea · Rotina ACS LAB</title>
 <link rel="icon" type="image/svg+xml" href="./icon.svg">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<style>
-:root{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:#183c39;background:#e9f1ed;font-synthesis:none}*{box-sizing:border-box}body{margin:0}button{font:inherit;cursor:pointer}button:focus-visible{outline:3px solid #34c0a3;outline-offset:2px}a{color:inherit}
-.app{display:flex;height:100dvh;overflow:hidden}.sidebar{width:385px;flex:0 0 385px;display:flex;flex-direction:column;background:#fcfdfa;z-index:500;box-shadow:6px 0 32px #163c3425}.header{background:#123934;color:white;padding:24px 24px 20px}.brand{font-size:10px;font-weight:850;letter-spacing:2px;color:#8fdbcb}.header h1{font-size:23px;letter-spacing:-.8px;margin:8px 0 6px}.header p{font-size:12px;color:#bfdad1;margin:0;line-height:1.55}.warn{background:#fff1d6;border:1px solid #f2d194;color:#79500a;margin:14px 17px 0;border-radius:11px;padding:10px 12px;font-size:11px;line-height:1.5}.content{padding:16px;overflow:auto;flex:1}.subtitle{font-size:11px;font-weight:850;letter-spacing:1px;color:#789088;text-transform:uppercase;margin:0 0 11px}.switch{display:grid;grid-template-columns:1fr 1fr;background:#eaf1ec;gap:5px;padding:4px;border-radius:12px;margin:0 0 16px}.switch button{border:0;border-radius:9px;background:transparent;color:#517069;padding:11px 6px;font-size:12px;font-weight:750}.switch button.active{background:white;color:#126354;box-shadow:0 2px 9px #34554816}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:14px}.stat{border-radius:12px;background:#eff5f0;border:1px solid #e2ece5;padding:10px}.stat span{display:block;font-size:10px;line-height:1.4;color:#5f7c70}.stat strong{display:block;font-size:25px;line-height:1.1;letter-spacing:-.7px;margin-top:4px;font-variant-numeric:tabular-nums}.card{background:white;border:1px solid #e1eae3;border-radius:15px;padding:15px;margin-bottom:14px;box-shadow:0 3px 12px #0e443109}.row{display:flex;justify-content:space-between;gap:8px;align-items:center}.row h2{font-size:13px;margin:0}.row small{color:#789088;font-size:11px}.linkbtn{border:0;background:transparent;color:#087968;font-size:11px;font-weight:800;padding:5px}.hint{color:#708981;font-size:11px;line-height:1.5}.filters{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.chip{border:1px solid #dae7df;background:white;border-radius:30px;padding:8px 10px;font-size:11px;color:#3a6057;display:flex;align-items:center;gap:7px}.chip.active{background:#e4f7ed;border-color:#50c0a0;color:#066850;font-weight:800}.dot{width:9px;height:9px;display:inline-block;border-radius:50%}.month{display:flex;align-items:center;justify-content:space-between;margin:12px 0}.month button{border:0;background:#edf3ef;color:#215b50;border-radius:8px;font-size:19px;width:33px;height:32px}.month strong{font-size:13px}.track{height:9px;background:#e6eeea;border-radius:20px;overflow:hidden;margin:12px 0 6px}.track span{display:block;height:100%;width:0;background:#16a17c;transition:width .2s}.sectorline{display:grid;grid-template-columns:64px 1fr 42px;align-items:center;gap:7px;font-size:11px;margin:11px 0}.bar{background:#e8efec;height:8px;border-radius:14px;overflow:hidden}.bar span{display:block;height:100%;border-radius:14px}.sectorline strong{text-align:right}.btn{border:1px solid #134c43;background:#134c43;color:white;border-radius:10px;padding:10px 12px;font-size:11px;font-weight:800}.btn.secondary{background:white;color:#20584e;border-color:#cbded5}.btn:disabled{opacity:.4;cursor:not-allowed}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:13px}.route{display:flex;align-items:center;gap:7px;border-top:1px solid #eaf0eb;padding:9px 0;font-size:12px}.route small{margin-left:auto;color:#769186}.route button{border:0;background:#fff0e9;color:#a04a32;border-radius:6px;padding:4px 8px}.footer{font-size:10px;padding:11px 17px;border-top:1px solid #e4ebe5;display:flex;gap:10px;justify-content:space-between;color:#759083}.footer a{color:#177767}
-.mapwrap{flex:1;min-width:0;position:relative}.map{height:100%;width:100%;background:#d7e2d7}.mapheads{position:absolute;top:18px;left:18px;z-index:450;display:flex;gap:8px;flex-wrap:wrap;pointer-events:none}.pill{background:#123934f2;color:#fff;padding:10px 14px;border-radius:100px;font-size:11px;box-shadow:0 6px 22px #0002}.pill.light{background:white;color:#356254}.maptools{position:absolute;right:18px;top:18px;z-index:450;display:grid;gap:8px}.maptools button{border:1px solid #dde9e0;background:white;color:#20584f;border-radius:12px;width:42px;height:42px;font-size:18px;box-shadow:0 3px 12px #0002}.maptools button.active{background:#176e5e;color:white}.legend{position:absolute;bottom:22px;right:17px;z-index:450;background:#ffffffed;border-radius:12px;box-shadow:0 7px 17px #0002;padding:11px;display:flex;gap:10px;flex-wrap:wrap;font-size:10px;color:#45665b}.legend i{width:10px;height:10px;display:inline-block;margin-right:4px;border-radius:3px;vertical-align:middle}.pin{width:32px;height:32px;background:white;border:3px solid white;border-radius:50% 50% 50% 6px;transform:rotate(-45deg);box-shadow:0 4px 13px #193e3b7a;display:flex;align-items:center;justify-content:center}.pin span{display:flex;justify-content:center;align-items:center;transform:rotate(45deg);border-radius:50%;width:26px;height:26px;color:white;font-size:10px;font-weight:900}.pin.done{opacity:.6}.pin.selected{box-shadow:0 0 0 4px #21b78e99,0 4px 12px #0004}.leaflet-popup-content-wrapper{border-radius:15px}.leaflet-popup-content{margin:14px 16px;min-width:210px}.popup-kicker{font-size:10px;text-transform:uppercase;color:#6f8e7c;letter-spacing:.8px}.popup-title{font-weight:900;font-size:15px;margin:5px 0}.popup-sub{font-size:12px;color:#547567;line-height:1.5}.popupactions{display:flex;gap:7px;margin-top:12px}.popupactions button{background:#166d5a;border:0;color:white;padding:9px 10px;border-radius:9px;font-size:11px;font-weight:800}.popupactions button.light{background:#e8f2ec;color:#1c6355}.loadfail{display:none;position:absolute;inset:0;background:#e9f1ed;z-index:650;align-items:center;justify-content:center;text-align:center;padding:28px;font-size:14px}.loadfail.visible{display:flex}
-@media(max-width:860px){.app{height:auto;min-height:100dvh;flex-direction:column;overflow:visible}.sidebar{order:2;width:100%;flex:none;max-height:none;box-shadow:none}.mapwrap{order:1;flex:none;height:49dvh;min-height:320px}.header{padding:17px}.header h1{font-size:19px;margin:5px 0}.header p{display:none}.warn{margin:12px 15px 0}.content{padding:14px 15px}.mapheads{left:12px;top:12px}.maptools{right:12px;top:12px}.legend{bottom:9px;right:9px;font-size:9px}.footer{padding-bottom:calc(12px + env(safe-area-inset-bottom))}}
-</style>
+<link rel="stylesheet" href="./styles.css">
 </head>
 <body>
+<header class="topbar"><div><span class="brand">ROTINA ACS <b>LAB</b></span><h1>Mapa da Microárea</h1></div><span class="lab-notice">Somente simulação com dados fictícios.<br>Não inserir dados reais.</span></header>
 <div class="app">
-<aside class="sidebar">
-  <header class="header"><div class="brand">ROTINA ACS · LABORATÓRIO</div><h1>Mapa da Microárea</h1><p>Veja o território, planeje visitas e acompanhe a execução.</p></header>
-  <div class="warn"><b>Protótipo com dados 100% fictícios.</b> Os pontos não representam moradores reais. Não cadastre nomes, endereços ou dados de pacientes.</div>
+<aside class="sidebar" id="panel" aria-label="Painel de planejamento">
+  <div class="panel-heading"><h2 id="paneltitle">Planejar visitas</h2><button id="closepanel" class="iconbtn" aria-label="Recolher painel">×</button></div>
+  <nav class="panel-tabs" aria-label="Painel"><button id="overviewtab" aria-pressed="true">Visão geral</button><button id="routetab" aria-pressed="false">Meu roteiro</button></nav>
   <div class="content">
-    <div class="switch"><button id="routine" class="active" aria-pressed="true">🗺 Visitas de rotina</button><button id="action" aria-pressed="false">🎯 Ação específica</button></div>
-    <p class="subtitle">Visão geral</p>
-    <div class="stats">
-      <div class="stat"><span>Pontos visíveis</span><strong id="total">0</strong></div>
-      <div class="stat"><span>Concluídos</span><strong id="done">0</strong></div>
-      <div class="stat"><span>Pendentes</span><strong id="pending">0</strong></div>
-    </div>
-    <section class="card">
-      <div class="row"><h2>Filtrar grupos</h2><button class="linkbtn" id="showall">Mostrar todos</button></div>
-      <div class="hint" id="filterhint">Toque em uma categoria para filtrar o mapa.</div>
-      <div class="filters" id="filters"></div>
+    <section id="overview">
+      <div class="switch"><button id="routine" class="active" aria-pressed="true">Rotina</button><button id="action" aria-pressed="false">Ação específica</button></div>
+      <div class="stats"><div class="stat"><span>Pontos no filtro</span><strong id="total">0</strong></div><div class="stat"><span>Concluídos</span><strong id="done">0</strong></div><div class="stat"><span>Pendentes</span><strong id="pending">0</strong></div></div>
+      <section class="card"><div class="row"><h2>Grupos simulados</h2><button class="linkbtn" id="showall">Mostrar todos</button></div><p class="hint" id="filterhint"></p><div class="filters" id="filters"></div></section>
+      <section class="card"><div class="row"><h2>Execução por setor</h2><small>Fictícia</small></div><div class="month"><button id="prev" aria-label="Mês anterior">‹</button><strong id="month"></strong><button id="next" aria-label="Próximo mês">›</button></div><div class="track"><span id="progressbar"></span></div><div class="row"><small id="progresslabel"></small><small id="progresspct"></small></div><div id="sectors"></div><p class="hint">Percentual dos pontos no filtro concluídos no mês. Não representa cobertura oficial ou qualidade do cuidado.</p></section>
+      <button id="reset" class="btn secondary">Restaurar demo</button>
     </section>
-    <section class="card">
-      <div class="row"><h2>Execução por setor</h2><small>Simulação mensal</small></div>
-      <div class="month"><button id="prev" aria-label="Mês anterior">‹</button><strong id="month">Outubro de 2026</strong><button id="next" aria-label="Próximo mês">›</button></div>
-      <div class="track"><span id="progressbar"></span></div><div class="row"><small id="progresslabel">0 de 0 pontos</small><small id="progresspct">0%</small></div>
-      <div id="sectors"></div>
-      <p class="hint">As cores mostram somente o percentual de pontos fictícios concluídos no mês, não a qualidade do cuidado ou indicadores oficiais.</p>
-    </section>
-    <section class="card">
-      <div class="row"><h2>Roteiro selecionado</h2><small id="routecount">0 pontos</small></div>
-      <div id="routelist"><p class="hint">Selecione pontos no mapa para planejar as visitas.</p></div>
-      <div class="actions"><button id="fitroute" class="btn">Ver no mapa</button><button id="clearroute" class="btn secondary">Limpar roteiro</button></div>
-    </section>
-    <div class="actions"><button id="addpoint" class="btn secondary">+ Ponto fictício</button><button id="reset" class="btn secondary">↺ Restaurar demo</button></div>
+    <section id="routeview" hidden><div class="row"><h2>Roteiro selecionado</h2><small id="routecount"></small></div><p class="hint">Ligação visual — não segue vias públicas. A ordem é escolhida por você.</p><p id="routehidden" class="hint"></p><ol id="routelist"></ol><div class="actions"><button id="fitroute" class="btn">Enquadrar roteiro</button><button id="clearroute" class="btn secondary">Limpar roteiro</button></div></section>
   </div>
-  <footer class="footer"><span>Sem conta · Sem backend · Só demonstração</span><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">Créditos cartográficos</a></footer>
+  <footer class="footer"><span>Dados apenas neste navegador</span><span id="savestatus" role="status">Pronto</span></footer>
 </aside>
-<main class="mapwrap">
-  <div id="map" class="map" aria-label="Mapa real com setores e pontos fictícios"></div>
-  <div class="mapheads"><span class="pill">● Microárea demonstrativa</span><span class="pill light" id="mapfilter">Todos os grupos</span></div>
-  <div class="maptools"><button id="fitall" title="Enquadrar a microárea" aria-label="Enquadrar mapa">⌖</button><button id="toggleareas" class="active" title="Alternar áreas" aria-label="Exibir áreas">▧</button></div>
-  <div class="legend"><span><i style="background:#50b487"></i>Maior</span><span><i style="background:#edbd69"></i>Intermediária</span><span><i style="background:#d97772"></i>Menor</span></div>
-  <div id="loadfail" class="loadfail"><div><b>Não foi possível carregar o mapa.</b><p>Verifique a conexão. As ruas e o Leaflet precisam de internet nesta versão.</p></div></div>
+<main class="mapwrap" aria-label="Mapa e controles">
+  <div class="map-toolbar"><button id="openpanel" class="btn secondary" aria-controls="panel" aria-expanded="true">☰ Painel</button><span id="mapfilter" class="context-label"></span><button id="fitall" class="btn secondary" aria-label="Enquadrar mapa">Enquadrar</button><button id="toggleareas" class="btn secondary" aria-pressed="true">Setores</button></div>
+  <div class="mapstage"><div id="map" class="map" aria-label="Mapa real com pontos fictícios"></div><div id="loadfail" class="loadfail"><div><b>O mapa está indisponível.</b><p>Verifique a conexão e recarregue. Seus dados locais continuam preservados.</p></div></div></div>
+  <details class="map-legend"><summary>Legenda do mapa</summary><div><span>● Grupo</span><span>◎ Selecionado / número da ordem</span><span>✓ Concluído</span><span>◎ + ✓ Selecionado e concluído</span><span>Setores: verde ≥75% · amarelo ≥45% · vermelho &lt;45% · cinza sem dados</span></div></details>
+  <div id="notice" class="notice" role="status" aria-live="polite"></div>
+  <div class="map-bottom"><button id="openroute" class="btn" aria-controls="panel">Roteiro (0)</button><button id="addpoint" class="btn secondary">+ Ponto fictício</button></div>
 </main>
 </div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="./app.js" defer></script>
+<script src="./domain.js"></script><script src="./app.js" defer></script>
 </body></html>
