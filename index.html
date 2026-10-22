@@ -9,6 +9,7 @@
 <link rel="icon" type="image/svg+xml" href="./icon.svg">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="./vendor/MarkerCluster.css">
 <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
@@ -21,7 +22,7 @@
     <section id="overview">
       <div class="switch"><button id="routine" class="active" aria-pressed="true">Rotina</button><button id="action" aria-pressed="false">Ação específica</button></div>
       <div class="stats"><div class="stat"><span>Pontos no filtro</span><strong id="total">0</strong></div><div class="stat"><span>Concluídos</span><strong id="done">0</strong></div><div class="stat"><span>Pendentes</span><strong id="pending">0</strong></div></div>
-      <section class="card"><div class="row"><h2>Grupos simulados</h2><button class="linkbtn" id="showall">Mostrar todos</button></div><p class="hint" id="filterhint"></p><div class="filters" id="filters"></div></section>
+      <section class="card"><div class="row"><h2>Grupos simulados</h2><button class="linkbtn" id="showall">Mostrar todos</button></div><p class="hint" id="filterhint"></p><div class="filters" id="filters"></div><button id="managegroups" class="linkbtn">Editar grupos simulados</button></section>
       <section class="card"><div class="row"><h2>Execução por setor</h2><small>Fictícia</small></div><div class="month"><button id="prev" aria-label="Mês anterior">‹</button><strong id="month"></strong><button id="next" aria-label="Próximo mês">›</button></div><div class="track"><span id="progressbar"></span></div><div class="row"><small id="progresslabel"></small><small id="progresspct"></small></div><div id="sectors"></div><p class="hint">Percentual dos pontos no filtro concluídos no mês. Não representa cobertura oficial ou qualidade do cuidado.</p></section>
       <button id="reset" class="btn secondary">Restaurar demo</button>
     </section>
@@ -30,13 +31,23 @@
   <footer class="footer"><span>Dados apenas neste navegador</span><span id="savestatus" role="status">Pronto</span></footer>
 </aside>
 <main class="mapwrap" aria-label="Mapa e controles">
-  <div class="map-toolbar"><button id="openpanel" class="btn secondary" aria-controls="panel" aria-expanded="true">☰ Painel</button><span id="mapfilter" class="context-label"></span><button id="fitall" class="btn secondary" aria-label="Enquadrar mapa">Enquadrar</button><button id="toggleareas" class="btn secondary" aria-pressed="true">Setores</button></div>
+  <div class="map-toolbar"><button id="openpanel" class="btn secondary" aria-controls="panel" aria-expanded="true">☰ Painel</button><span id="mapfilter" class="context-label"></span><button id="fitall" class="btn secondary" aria-label="Enquadrar mapa">Enquadrar</button><button id="gps" class="btn secondary">Minha localização</button><button id="toggleareas" class="btn secondary" aria-pressed="true">Setores</button></div>
   <div class="mapstage"><div id="map" class="map" aria-label="Mapa real com pontos fictícios"></div><div id="loadfail" class="loadfail"><div><b>O mapa está indisponível.</b><p>Verifique a conexão e recarregue. Seus dados locais continuam preservados.</p></div></div></div>
   <details class="map-legend"><summary>Legenda do mapa</summary><div><span>● Grupo</span><span>◎ Selecionado / número da ordem</span><span>✓ Concluído</span><span>◎ + ✓ Selecionado e concluído</span><span>Setores: verde ≥75% · amarelo ≥45% · vermelho &lt;45% · cinza sem dados</span></div></details>
   <div id="notice" class="notice" role="status" aria-live="polite"></div>
   <div class="map-bottom"><button id="openroute" class="btn" aria-controls="panel">Roteiro (0)</button><button id="addpoint" class="btn secondary">+ Ponto fictício</button></div>
 </main>
 </div>
+<dialog id="pointdialog" aria-labelledby="pointtitle">
+<form id="pointform"><div class="row"><h2 id="pointtitle">Novo ponto fictício</h2><button type="button" class="iconbtn" id="closepoint" aria-label="Fechar edição de ponto">×</button></div>
+<p class="hint">Somente simulação. Não use locais ou informações de pacientes. O identificador é gerado automaticamente.</p>
+<fieldset><legend>Grupos simulados (opcionais)</legend><div id="pointcategories" class="checkgrid"></div></fieldset>
+<div class="coordinate-grid"><label>Latitude fictícia<input id="pointlat" type="number" min="-85" max="85" step="any" required></label><label>Longitude fictícia<input id="pointlng" type="number" min="-180" max="180" step="any" required></label></div>
+<button type="button" id="picklocation" class="btn secondary">Escolher posição no mapa</button><p class="hint" id="pointsector"></p><p id="pointerror" class="formerror" role="alert"></p>
+<div class="actions"><button type="submit" class="btn">Salvar ponto fictício</button><button type="button" id="deletepoint" class="btn danger">Excluir ponto</button></div></form></dialog>
+<dialog id="groupdialog" aria-labelledby="grouptitle"><div class="row"><h2 id="grouptitle">Grupos simulados</h2><button type="button" class="iconbtn" id="closegroups" aria-label="Fechar grupos">×</button></div><p class="hint">Use rótulos genéricos de simulação, nunca nomes ou dados pessoais. Um ponto pode ter vários grupos e é contado uma única vez.</p><div id="grouplist"></div>
+<form id="groupform"><h3 id="groupformtitle">Novo grupo</h3><label>Rótulo do grupo simulado<input id="groupname" maxlength="32" required autocomplete="off"></label><div class="coordinate-grid"><label>Cor<input id="groupcolor" type="color" value="#246d60"></label><label>Símbolo<select id="groupsymbol"></select></label></div><p id="grouperror" class="formerror" role="alert"></p><div class="actions"><button type="submit" class="btn">Salvar grupo</button><button type="button" id="newgroup" class="btn secondary">Novo grupo</button></div></form></dialog>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="./vendor/leaflet.markercluster.js"></script>
 <script src="./domain.js"></script><script src="./app.js" defer></script>
 </body></html>
