@@ -57,6 +57,17 @@ Leaflet 1.9.4 via unpkg, já utilizado na V0.1. [Leaflet.markercluster 1.5.3](ht
 ## Checkpoints e pendências
 
 - P0: `37ce42e`, publicado após testes, preservado.
-- P1: funcionalidades acima implementadas e validadas.
-- P2 pendente: setores editáveis; concentração separada da execução; resumo mensal agregado; backup/restauração local validada; aperfeiçoamento de instalação e atualização PWA. Não há controles parciais para essas funcionalidades.
+- P1: `330d603`, com estabilização dos popups em `5512d50`; publicada e validada.
+- P2 entregue neste checkpoint: concentração separada da execução, resumo mensal por setor/grupo com total distinto, backup JSON local com validação estrita, prévia e confirmação.
+- P2 pendente: edição de polígonos e aperfeiçoamento/validação de instalação PWA em aparelhos físicos. Nenhuma nova fase iniciada.
 - P3 fora deste ciclo: rotas por ruas, importação My Maps/KML, calendário ampliado, qualquer uso de produção com dados pessoais.
+
+
+## Validação final do checkpoint P2 — 23/10/2026
+
+- `backup.js` valida formato/versão, referências, duplicações, coordenadas, registros, campos permitidos e tamanho máximo de 1 MB. Limites: 2.000 pontos e 32 grupos.
+- Exportação usa download local; restauração requer prévia e declaração de dados fictícios. Grava antes de substituir o estado em memória: falhas de quota preservam os dados atuais.
+- `node --check` em `app.js`, `domain.js`, `backup.js` e `sw.js`: aprovado. `node --test tests/domain.test.js tests/backup.test.js`: **14/14 aprovados**.
+- `tests/backup-browser.js` executado via Playwright: **PASS**, sem erros JS. Validou download real e conteúdo, restauração com recarga, cancelamento, JSON inválido, arquivo >1 MB, erro de quota sem perda, prévia mobile, resumo e concentração independente da competência.
+- A sessão local inicialmente reutilizou uma cópia HTTP antiga de `domain.js`; revalidação sem cache carregou a versão atual e todos os testes passaram. Não foi necessário reimplementar funcionalidades.
+- Testes de navegador substituem apenas o estado da instância local de teste; não executá-los contra dados de trabalho. Arquivos não são enviados a servidor. GPS temporário não integra o backup.

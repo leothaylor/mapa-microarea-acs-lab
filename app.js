@@ -5,6 +5,7 @@ const D=window.Lab, $=id=>document.getElementById(id);
 const names=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 let state=D.fresh(), storageBlocked=false, showAreas=true, adding=false;
 let pointDraft=null,editingGroup=null,gpsLayer=null,gpsPending=false,standalonePopup=null;
+let layerView='execution',backupCandidate=null;
 const notify=message=>{$('notice').textContent=message;};
 try{const raw=localStorage.getItem(D.KEY);if(raw)state=D.normalize(JSON.parse(raw));}
 catch(error){storageBlocked=true;notify('Não foi possível ler os dados locais. Eles foram preservados. Restaure a demo somente se quiser substituí-los.');}
@@ -67,6 +68,13 @@ function render(){
  $('total').textContent=all;$('done').textContent=done;$('pending').textContent=all-done;
  $('month').textContent=names[Number(state.month.slice(5))-1]+' de '+state.month.slice(0,4);
  $('progressbar').style.width=percent(done,all)+'%';$('progresslabel').textContent=done+' de '+all+' pontos';$('progresspct').textContent=all?percent(done,all)+'%':'Sem dados';
+ const concentration=layerView==='concentration';
+ $('viewexecution').setAttribute('aria-pressed',String(!concentration));$('viewconcentration').setAttribute('aria-pressed',String(concentration));
+ $('sectortitle').textContent=concentration?'Concentração por setor':'Execução por setor';
+ $('progresstrack').hidden=concentration;
+ $('sectorhint').textContent=concentration?'Quantidade de pontos sintéticos no filtro, independente da competência. Não é incidência clínica. Contadores de conclusão continuam referentes ao mês acima.':'Percentual dos pontos no filtro concluídos no mês. Não representa cobertura oficial ou qualidade do cuidado.';
+ $('sectorlegend').textContent=concentration?'Setores: concentração de pontos sintéticos · tom mais escuro = maior quantidade · cinza = sem dados':'Setores: execução no mês · verde ≥75% · amarelo ≥45% · vermelho <45% · cinza sem dados';
+ if(concentration){$('progresslabel').textContent=all+' pontos distintos no filtro';$('progresspct').textContent='Quantidade';}
  $('mapfilter').textContent=(state.mode==='action'?'Ação · ':'Rotina · ')+(state.groups.length?state.groups.map(id=>state.categories[id][2]).join(' ou '):state.mode==='action'?'Escolha ao menos um grupo':'Todos os grupos');
  for(const mode of ['routine','action']){$(mode).classList.toggle('active',state.mode===mode);$(mode).setAttribute('aria-pressed',String(state.mode===mode));}
  $('toggleareas').setAttribute('aria-pressed',String(showAreas));
@@ -79,12 +87,15 @@ function render(){
   chip.dataset.focusKey='filter-'+key;
  }
  const sectorRoot=$('sectors');sectorRoot.replaceChildren();
+ const largestSector=Math.max(1,...D.areas.map(s=>pts.filter(p=>p.sector===s.id).length));
  D.areas.forEach(s=>{
-  const part=pts.filter(p=>p.sector===s.id),n=part.filter(visited).length,pct=percent(n,part.length),color=tone(pct,part.length);
+  const part=pts.filter(p=>p.sector===s.id),n=part.filter(visited).length,pct=percent(n,part.length);
+  const color=concentration?(part.length?'hsl(170, 42%, '+(75-40*part.length/largestSector)+'%)':'#82958e'):tone(pct,part.length);
   const item=el('div','sectorline'),bar=el('div','bar'),fill=el('span');fill.style.width=pct+'%';fill.style.background=color;bar.append(fill);
-  item.append(el('b','','Setor '+s.id),bar,el('strong','',part.length?pct+'%':'Sem dados'));sectorRoot.append(item);
+  if(concentration)fill.style.width=percent(part.length,largestSector)+'%';
+  item.append(el('b','','Setor '+s.id),bar,el('strong','',part.length?(concentration?part.length+' pts':pct+'%'):'Sem dados'));sectorRoot.append(item);
   let polygon=polygons.get(s.id);if(!polygon){polygon=L.polygon(s.coords,{weight:2,fillOpacity:.16});polygons.set(s.id,polygon);}
-  polygon.setStyle({color,fillColor:color});polygon.bindTooltip('Setor '+s.id+': '+(part.length?n+' de '+part.length+' concluídos':'sem dados'),{sticky:true});
+  polygon.setStyle({color,fillColor:color,fillOpacity:concentration ? .35 : .16});polygon.bindTooltip('Setor '+s.id+': '+(part.length?(concentration?part.length+' pontos sintéticos':n+' de '+part.length+' concluídos'):'sem dados'),{sticky:true});
   if(showAreas)polygon.addTo(map);else polygon.remove();
  });
  updateMarkers(pts);
@@ -164,6 +175,53 @@ for(const symbol of D.symbols){const option=el('option','',symbol);option.value=
 $('managegroups').onclick=()=>{clearGroupForm();renderGroups();$('groupdialog').showModal();};
 $('closegroups').onclick=()=>$('groupdialog').close();$('newgroup').onclick=clearGroupForm;
 $('groupform').onsubmit=e=>{e.preventDefault();try{D.putGroup(state,{name:$('groupname').value,color:$('groupcolor').value,symbol:$('groupsymbol').value},editingGroup);changed('Grupo simulado salvo.');clearGroupForm();renderGroups();}catch(error){$('grouperror').textContent=error.message;}};
+for(const [id,view] of [['viewexecution','execution'],['viewconcentration','concentration']])$(id).onclick=()=>{layerView=view;render();};
+function summaryTable(rows,name){
+ const table=el('table'),head=el('thead'),header=el('tr');
+ table.append(el('caption','',name+' · pontos distintos no filtro'));
+ for(const title of [name,'Total','Roteiro','Concl.','Pend.']){const th=el('th','',title);th.scope='col';header.append(th);}head.append(header);table.append(head);
+ const body=el('tbody');
+ for(const row of rows){const tr=el('tr'),title=el('th','',row.label);title.scope='row';tr.append(title);for(const n of [row.total,row.planned,row.done,row.total-row.done])tr.append(el('td','',row.total?n:'—'));body.append(tr);}
+ table.append(body);return table;
+}
+$('opensummary').onclick=()=>{
+ const summary=D.summarize(state);$('summarycontext').textContent=$('month').textContent+' · '+$('mapfilter').textContent+'. Execução fictícia; setores vazios não representam 0% de cobertura.';
+ const totals=$('summarytotals');totals.replaceChildren();
+ for(const [text,key] of [['Pontos distintos','total'],['No roteiro','planned'],['Concluídos','done'],['Pendentes','pending']]){const item=el('div','',text);item.append(el('strong','',summary[key]));totals.append(item);}
+ $('summarysectors').replaceChildren(summaryTable(summary.sectors.map(s=>({...s,label:s.id?'Setor '+s.id:'Sem setor'})),'Setor'));
+ $('summarygroups').replaceChildren(summaryTable(summary.groups.map(g=>({...g,label:g.id?state.categories[g.id][2]:'Sem grupo'})),'Grupo'));
+ $('summarydialog').showModal();
+};
+$('closesummary').onclick=()=>$('summarydialog').close();
+$('exportbackup').onclick=()=>{
+ try{const text=LabBackup.serialize(state),url=URL.createObjectURL(new Blob([text],{type:'application/json'})),link=el('a');link.href=url;link.download='rotina-acs-lab-'+new Date().toISOString().slice(0,10)+'.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);notify('Backup JSON preparado. Guarde o arquivo em um local seguro; somente simulações fictícias.');}
+ catch(error){notify('Backup não gerado: '+error.message);}
+};
+$('choosebackup').onclick=()=>{$('backupfile').value='';$('backupfile').click();};
+$('backupfile').onchange=async()=>{
+ const file=$('backupfile').files[0];if(!file)return;
+ backupCandidate=null;$('confirmsynthetic').checked=false;$('restorebackup').disabled=true;$('backuperror').textContent='';
+ try{
+  if(file.size>LabBackup.MAX_BYTES)throw Error('O backup deve ter no máximo 1 MB.');
+  const parsed=LabBackup.parse(await file.text());backupCandidate=parsed.state;
+  const s=backupCandidate,executions=Object.values(s.visits).reduce((sum,ids)=>sum+ids.length,0);
+  $('backuppreview').textContent='Arquivo de '+new Date(parsed.createdAt).toLocaleString('pt-BR')+': '+s.points.length+' pontos fictícios, '+Object.keys(s.categories).length+' grupos, '+s.route.length+' pontos no roteiro e '+executions+' conclusões ao longo de '+Object.keys(s.visits).length+' competência(s). Competência ativa: '+s.month+'.';
+  $('backupdialog').showModal();
+ }catch(error){notify('Restauração recusada: '+error.message+' Os dados atuais foram preservados.');}
+};
+$('confirmsynthetic').onchange=()=>{$('restorebackup').disabled=!$('confirmsynthetic').checked||!backupCandidate;};
+function cancelBackup(){backupCandidate=null;$('backupdialog').close();$('choosebackup').focus();}
+$('cancelbackup').onclick=cancelBackup;$('closebackup').onclick=cancelBackup;
+$('backupdialog').addEventListener('cancel',()=>{backupCandidate=null;});
+$('restorebackup').onclick=()=>{
+ if(!backupCandidate||!$('confirmsynthetic').checked)return;
+ try{
+  // Write first: a quota/access failure must preserve both current UI and storage.
+  localStorage.setItem(D.KEY,JSON.stringify(backupCandidate));
+  state=backupCandidate;storageBlocked=false;backupCandidate=null;cancelAdd();map.closePopup();$('backupdialog').close();
+  $('savestatus').textContent='Salvo neste navegador';render();fitAll();notify('Backup restaurado localmente. Nenhum arquivo foi enviado.');
+ }catch(error){$('backuperror').textContent='Não foi possível gravar o backup neste navegador. Os dados atuais foram preservados. Libere espaço ou permita armazenamento e tente novamente.';}
+};
 $('gps').onclick=()=>{
  if(gpsLayer){map.removeLayer(gpsLayer);gpsLayer=null;$('gps').textContent='Minha localização';$('gps').setAttribute('aria-pressed','false');notify('Localização temporária removida. Nada foi salvo.');return;}
  if(!navigator.geolocation){notify('Este navegador não oferece geolocalização. Você pode navegar manualmente no mapa.');return;}

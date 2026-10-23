@@ -33,6 +33,7 @@ function normalize(raw){
 }
 function visible(state){return state.points.filter(p=>state.mode==='action'&&!state.groups.length?false:!state.groups.length||p.categories.some(id=>state.groups.includes(id)));}
 function putPoint(state,input,id){
+ if(!id&&(state.points.length>=2000||state.nextPointId>=Number.MAX_SAFE_INTEGER))throw Error('Limite de 2.000 pontos do laboratório atingido.');
  if(!Number.isFinite(input.lat)||Math.abs(input.lat)>85||!Number.isFinite(input.lng)||Math.abs(input.lng)>180)throw Error('Coordenadas inválidas. Latitude: -85 a 85; longitude: -180 a 180.');
  const point={id:id||state.nextPointId,lat:input.lat,lng:input.lng,sector:findSector(input),categories:[...new Set(input.categories.filter(key=>Object.hasOwn(state.categories,key)))]};
  if(id){const i=state.points.findIndex(p=>p.id===id);if(i<0)throw Error('Ponto não encontrado.');state.points[i]=point;}else{state.nextPointId++;state.points.push(point);}return point;
@@ -40,6 +41,7 @@ function putPoint(state,input,id){
 function deletePoint(state,id){state.points=state.points.filter(p=>p.id!==id);state.route=state.route.filter(x=>x!==id);for(const m of Object.keys(state.visits))state.visits[m]=state.visits[m].filter(x=>x!==id);for(const key of Object.keys(state.records))if(key.endsWith(':'+id))delete state.records[key];}
 function deleteGroup(state,id){delete state.categories[id];state.groups=state.groups.filter(x=>x!==id);state.points.forEach(p=>{p.categories=p.categories.filter(x=>x!==id);});}
 function putGroup(state,{name,color,symbol},id){
+ if(!id&&Object.keys(state.categories).length>=32)throw Error('Limite de 32 grupos do laboratório atingido.');
  name=name.trim();if(!name||name.length>32)throw Error('Use um rótulo de grupo simulado com 1 a 32 caracteres.');
  if(!/^#[0-9a-f]{6}$/i.test(color)||!symbols.includes(symbol))throw Error('Cor ou símbolo inválido.');
  if(Object.entries(state.categories).some(([key,c])=>key!==id&&c[2].toLocaleLowerCase()===name.toLocaleLowerCase()))throw Error('Já existe um grupo com esse rótulo.');
@@ -57,6 +59,12 @@ function toggleVisit(state,id,now=new Date()){
 function toggleRoute(state,id){if(!state.points.some(p=>p.id===id))return;state.route=state.route.includes(id)?state.route.filter(x=>x!==id):[...state.route,id];}
 function moveRoute(state,id,delta){const i=state.route.indexOf(id),j=i+delta;if(i<0||j<0||j>=state.route.length)return;[state.route[i],state.route[j]]=[state.route[j],state.route[i]];}
 function findSector(loc){for(const s of areas){let inside=false;for(let i=0,j=s.coords.length-1;i<s.coords.length;j=i++){const yi=s.coords[i][0],xi=s.coords[i][1],yj=s.coords[j][0],xj=s.coords[j][1];if(((yi>loc.lat)!==(yj>loc.lat))&&(loc.lng<(xj-xi)*(loc.lat-yi)/(yj-yi)+xi))inside=!inside;}if(inside)return s.id;}return null;}
-const api={KEY,areas,categories,symbols,fresh,normalize,visible,visited,toggleVisit,toggleRoute,moveRoute,findSector,putPoint,deletePoint,putGroup,deleteGroup};
+function summarize(state){
+ const points=visible(state),planned=new Set(state.route);
+ const count=items=>({total:items.length,done:items.filter(p=>visited(state,p.id)).length,planned:items.filter(p=>planned.has(p.id)).length});
+ const total=count(points);total.pending=total.total-total.done;
+ return {...total,sectors:[...areas.map(a=>a.id),null].map(id=>({id,...count(points.filter(p=>p.sector===id))})),groups:[...Object.keys(state.categories),null].map(id=>({id,...count(points.filter(p=>id?p.categories.includes(id):!p.categories.length))}))};
+}
+const api={KEY,areas,categories,symbols,fresh,normalize,visible,visited,toggleVisit,toggleRoute,moveRoute,findSector,putPoint,deletePoint,putGroup,deleteGroup,summarize};
 if(typeof module!=='undefined')module.exports=api;else root.Lab=api;
 })(typeof window!=='undefined'?window:globalThis);
